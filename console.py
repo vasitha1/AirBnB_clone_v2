@@ -113,17 +113,64 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
+    def do_create(self, arg):
+        """
+        Use:
+        This method is used to create a class object
+        Usage:
+        It takes a string argument which is latter broken down to the
+        different parameters of the class and the class name to be created
+        Example:
+        create User name="My_little_house" age=30 height=5.9
+        first splits the command into tokens seperated by " " then checks for
+        the exisitence of a user class and finally processes the parameters
+        """
+        if not arg:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        args = arg.split()
+        class_name = args[0]
+        parameters = args[1:]
+
+        #Check if class exists
+        if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
+        param_dict = {}
+
+        for param in parameters:
+            #Dividing the arg input into strings
+            if "=" in param:
+                key, value = param.split('=', 1)
+                key = key.strip()
+                value = value.strip()
+
+                #Processing string values
+                if value.startswith('"') and value.endswith('"'):
+                    value = value[1:-1].replace('\\"', '"').replace('_', ' ')
+                    param_dict[key] = value
+
+                # Process float values
+                elif '.' in value:
+                    try:
+                        param_dict[key] = float(value)
+                    except ValueError:
+                        continue # Skip invalid float
+
+                # Process integer values
+                else:
+                    try:
+                        param_dict[key] = int(value)
+                    except ValueError:
+                        print("Invalid value type: {}".format(value))
+                        continue
+            else:
+                print("Invalid paramerer format: {}".format(param))
+                continue
+
+        obj = HBNBCommand.classes[class_name](**param_dict)
+        storage.new(obj)
         storage.save()
 
     def help_create(self):
