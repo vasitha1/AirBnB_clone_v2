@@ -7,6 +7,7 @@ Routes:
 """
 
 from flask import Flask
+from flask import render_template
 
 app = Flask(__name__)
 
@@ -45,7 +46,7 @@ def number(n):
 
 
 @app.route('/number_template/<int:n>', strict_slashes=False)
-def number(n):
+def number_template(n):
     """Method to display n is a number"""
     return render_template("5-number.html", n=n)
 
